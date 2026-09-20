@@ -1,35 +1,33 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RainCube : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private MeshRenderer _meshRenderer;
+    [SerializeField] private RainCubeView _view;
 
+    private RainCubeConfig _config;
     private Rigidbody _rigidbody;
-    private MaterialPropertyBlock _propBlock;
 
     private bool _hasHitPlatform;
     private bool _isDying;
     private bool _isReleased;
     private bool _isFaulted;
+
     private float _lifetimeTimer;
     private float _targetLifetime;
-    private float _killHeight;
-    private int _colorPropertyId;
 
-    public event Action<RainCube> OnPlatformHit;
     public event Action<RainCube> OnLifetimeEnded;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _propBlock = new MaterialPropertyBlock();
 
-        if (_meshRenderer == null)
+        if (_view == null)
         {
-            Debug.LogError("[RainCube] MeshRenderer reference is missing! Assign it in the Inspector.", this);
+            Debug.LogError("[RainCube] View reference is missing!", this);
             _isFaulted = true;
             gameObject.SetActive(false);
             return;
@@ -38,17 +36,15 @@ public class RainCube : MonoBehaviour
 
     private void Update()
     {
-        if (_isFaulted || _isReleased)
-            return;
+        if (_isFaulted || _isReleased || _config == null) return;
 
-        if (transform.position.y < _killHeight)
+        if (transform.position.y < _config.KillHeight)
         {
             ReleaseCube();
             return;
         }
 
-        if (!_isDying)
-            return;
+        if (!_isDying) return;
 
         _lifetimeTimer += Time.deltaTime;
 
@@ -60,13 +56,16 @@ public class RainCube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_isFaulted || _hasHitPlatform || _isReleased)
-            return;
+        if (_isFaulted || _hasHitPlatform || _isReleased || _config == null) return;
 
         if (collision.gameObject.TryGetComponent<Platform>(out _))
         {
             _hasHitPlatform = true;
-            OnPlatformHit?.Invoke(this);
+
+            Color targetColor = GetRandomHitColor();
+            float targetLifetime = Random.Range(_config.MinLifetime, _config.MaxLifetime);
+
+            TriggerDeathSequence(targetColor, targetLifetime);
         }
     }
 
@@ -81,27 +80,25 @@ public class RainCube : MonoBehaviour
 
     private void OnDestroy()
     {
-        OnPlatformHit = null;
         OnLifetimeEnded = null;
     }
 
-    public void Initialize(Vector3 position, Color initialColor, float killHeight, int colorPropertyId)
+    public void Initialize(Vector3 position, RainCubeConfig config)
     {
         if (_isFaulted) return;
 
+        _config = config;
         _isReleased = false;
         _hasHitPlatform = false;
         _isDying = false;
         _lifetimeTimer = 0f;
-        _killHeight = killHeight;
-        _colorPropertyId = colorPropertyId;
 
         transform.position = position;
-
+        _rigidbody.position = position;
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
 
-        SetColor(initialColor);
+        _view.Initialize(_config.ShaderColorProperty, _config.DefaultSpawnColor);
     }
 
     public void TriggerDeathSequence(Color hitColor, float lifetime)
@@ -110,14 +107,13 @@ public class RainCube : MonoBehaviour
 
         _isDying = true;
         _targetLifetime = lifetime;
-        SetColor(hitColor);
+        _view.SetColor(hitColor);
     }
 
-    private void SetColor(Color color)
+    private Color GetRandomHitColor()
     {
-        _meshRenderer.GetPropertyBlock(_propBlock);
-        _propBlock.SetColor(_colorPropertyId, color);
-        _meshRenderer.SetPropertyBlock(_propBlock);
+        if (_config.AvailableHitColors == null || _config.AvailableHitColors.Count == 0) return Color.red;
+        return _config.AvailableHitColors[Random.Range(0, _config.AvailableHitColors.Count)];
     }
 
     private void ReleaseCube()

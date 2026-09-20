@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 111403635}
   - component: {fileID: 111403634}
   - component: {fileID: 111403633}
+  - component: {fileID: 111403637}
   m_Layer: 3
   m_Name: MainPlatform
   m_TagString: Untagged
@@ -227,6 +228,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &111403637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 111403632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73261a60ae7ef0d4bb07b7bf13f797bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &322014732
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,6 +252,7 @@ GameObject:
   - component: {fileID: 322014735}
   - component: {fileID: 322014734}
   - component: {fileID: 322014733}
+  - component: {fileID: 322014737}
   m_Layer: 3
   m_Name: SmallPlatform
   m_TagString: Untagged
@@ -332,6 +346,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 35, y: 91.087, z: 0}
+--- !u!114 &322014737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322014732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73261a60ae7ef0d4bb07b7bf13f797bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,7 +553,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1541109088}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: SpawnOrigin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -561,6 +587,7 @@ GameObject:
   - component: {fileID: 1821389889}
   - component: {fileID: 1821389888}
   - component: {fileID: 1821389887}
+  - component: {fileID: 1821389891}
   m_Layer: 3
   m_Name: SmallPlatform 2
   m_TagString: Untagged
@@ -654,6 +681,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -35, y: 93.376, z: 0}
+--- !u!114 &1821389891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821389886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73261a60ae7ef0d4bb07b7bf13f797bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2125233065
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,7 +704,7 @@ GameObject:
   - component: {fileID: 2125233068}
   - component: {fileID: 2125233067}
   - component: {fileID: 2125233066}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: '[SETUP]_CubeRainSystem'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -698,7 +737,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ac0d526644ea1f4a9ad7ae5c1631bbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: a554042d021ae9044955161450ef318f, type: 2}
+  _spawnerConfig: {fileID: 11400000, guid: 5194d584c53370c4285182f06d9b1812, type: 2}
+  _cubeConfig: {fileID: 11400000, guid: 8e759012214928f4293103bf53760b1c, type: 2}
   _spawner: {fileID: 2125233066}
 --- !u!4 &2125233068
 Transform:

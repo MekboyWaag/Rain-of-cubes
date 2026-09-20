@@ -3,19 +3,20 @@ using UnityEngine;
 public class CubeRainCoordinator : MonoBehaviour
 {
     [Header("Configs")]
-    [SerializeField] private CubeRainConfigSO _config;
+    [SerializeField] private CubeRainSpawnerConfig _spawnerConfig;
+    [SerializeField] private RainCubeConfig _cubeConfig;
 
     [Header("Systems")]
     [SerializeField] private CubeRainSpawner _spawner;
 
     private void Awake()
     {
-        if (_config == null || _spawner == null)
+        if (_cubeConfig == null || _spawner == null || _spawnerConfig == null)
         {
-            Debug.LogError("[CubeRainCoordinator] Dependencies missing! Initialization aborted.");
+            Debug.LogError("[CubeRainCoordinator] Dependencies missing! Initialization aborted.", this);
             return;
         }
 
-        _spawner.Initialize(_config);
+        _spawner.Initialize(_spawnerConfig, _cubeConfig);
     }
 }

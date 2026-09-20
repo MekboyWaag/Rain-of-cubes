@@ -7,22 +7,22 @@ public class CubeRainSpawner : MonoBehaviour
     [SerializeField] private RainCube _cubePrefab;
     [SerializeField] private Transform _spawnOrigin;
 
-    private CubeRainConfigSO _config;
+    private CubeRainSpawnerConfig _spawnerConfig;
+    private RainCubeConfig _cubeConfig;
     private ObjectPool<RainCube> _pool;
+
     private float _spawnTimer;
     private bool _isInitialized;
-    private int _shaderColorPropertyId;
 
     private void Update()
     {
-        if (!_isInitialized || _config.SpawnInterval <= 0f)
-            return;
+        if (!_isInitialized || _spawnerConfig.SpawnInterval <= 0f) return;
 
         _spawnTimer += Time.deltaTime;
 
-        while (_spawnTimer >= _config.SpawnInterval)
+        while (_spawnTimer >= _spawnerConfig.SpawnInterval)
         {
-            _spawnTimer -= _config.SpawnInterval;
+            _spawnTimer -= _spawnerConfig.SpawnInterval;
             SpawnCube();
         }
     }
@@ -33,31 +33,25 @@ public class CubeRainSpawner : MonoBehaviour
         _pool?.Dispose();
     }
 
-    public void Initialize(CubeRainConfigSO config)
+    public void Initialize(CubeRainSpawnerConfig spawnerConfig, RainCubeConfig cubeConfig)
     {
         if (_isInitialized) return;
 
-        if (_cubePrefab == null)
+        if (_cubePrefab == null || _spawnOrigin == null)
         {
-            Debug.LogError("[CubeRainSpawner] Cube Prefab is missing! Assign it in the Inspector.", this);
+            Debug.LogError("[CubeRainSpawner] Dependencies missing!", this);
             return;
         }
 
-        if (_spawnOrigin == null)
-        {
-            Debug.LogError("[CubeRainSpawner] Spawn Origin is missing!", this);
-            return;
-        }
-
-        _config = config;
-        _shaderColorPropertyId = Shader.PropertyToID(_config.ShaderColorProperty);
+        _spawnerConfig = spawnerConfig;
+        _cubeConfig = cubeConfig;
 
         _pool = new ObjectPool<RainCube>(
             createFunc: CreateCube,
             actionOnGet: null,
             actionOnRelease: cube => cube.gameObject.SetActive(false),
             actionOnDestroy: DestroyCubeTarget,
-            defaultCapacity: _config.InitialPoolCapacity
+            defaultCapacity: _spawnerConfig.InitialPoolCapacity
         );
 
         _isInitialized = true;
@@ -66,27 +60,16 @@ public class CubeRainSpawner : MonoBehaviour
     private void SpawnCube()
     {
         RainCube cube = _pool.Get();
-        Vector3 randomPos = _spawnOrigin.position + _config.GetRandomLocalSpawnPosition();
+        Vector3 randomPos = GetRandomSpawnPosition();
 
-        cube.Initialize(randomPos, _config.DefaultSpawnColor, _config.KillHeight, _shaderColorPropertyId);
+        cube.Initialize(randomPos, _cubeConfig);
         cube.gameObject.SetActive(true);
-    }
-
-    private void HandleCubeHit(RainCube cube)
-    {
-        if (!_isInitialized) return;
-
-        Color targetColor = _config.GetRandomHitColor();
-        float targetLifetime = _config.GetRandomLifetime();
-
-        cube.TriggerDeathSequence(targetColor, targetLifetime);
     }
 
     private RainCube CreateCube()
     {
         RainCube cube = Instantiate(_cubePrefab, transform);
         cube.gameObject.SetActive(false);
-        cube.OnPlatformHit += HandleCubeHit;
         cube.OnLifetimeEnded += ReturnToPool;
         return cube;
     }
@@ -106,9 +89,15 @@ public class CubeRainSpawner : MonoBehaviour
     {
         if (cube != null)
         {
-            cube.OnPlatformHit -= HandleCubeHit;
             cube.OnLifetimeEnded -= ReturnToPool;
             Destroy(cube.gameObject);
         }
+    }
+
+    private Vector3 GetRandomSpawnPosition()
+    {
+        float x = Random.Range(-_spawnerConfig.SpawnAreaSize.x / 2f, _spawnerConfig.SpawnAreaSize.x / 2f);
+        float z = Random.Range(-_spawnerConfig.SpawnAreaSize.z / 2f, _spawnerConfig.SpawnAreaSize.z / 2f);
+        return _spawnOrigin.position + new Vector3(x, 0f, z);
     }
 }
