@@ -14,7 +14,7 @@ public class RainCubeView : MonoBehaviour
 
         if (_meshRenderer == null)
         {
-            Debug.LogError("[RainCubeView] MeshRenderer is missing! Assign it in Inspector.", this);
+            Debug.LogError("[RainCubeView] MeshRenderer is missing!", this);
             return;
         }
     }
@@ -32,7 +32,10 @@ public class RainCubeView : MonoBehaviour
 
     public void SetColor(Color color)
     {
-        if (_meshRenderer == null) return;
+        if (_meshRenderer == null)
+        {
+            return;
+        }
 
         _meshRenderer.GetPropertyBlock(_propBlock);
         _propBlock.SetColor(_colorPropertyId, color);

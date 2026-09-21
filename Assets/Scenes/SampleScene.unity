@@ -723,8 +723,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34e818dd128edda449672032cc1206d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cubePrefab: {fileID: 8467445157204236323, guid: eb95ccbf79139e14386e99b6bd98956d, type: 3}
-  _spawnOrigin: {fileID: 1541109088}
+  _prefab: {fileID: 8467445157204236323, guid: eb95ccbf79139e14386e99b6bd98956d, type: 3}
+  _origin: {fileID: 1541109088}
 --- !u!114 &2125233067
 MonoBehaviour:
   m_ObjectHideFlags: 0

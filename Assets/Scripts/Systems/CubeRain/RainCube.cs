@@ -18,6 +18,7 @@ public class RainCube : MonoBehaviour
 
     private float _lifetimeTimer;
     private float _targetLifetime;
+    private float _killHeight;
 
     public event Action<RainCube> OnLifetimeEnded;
 
@@ -30,33 +31,43 @@ public class RainCube : MonoBehaviour
             Debug.LogError("[RainCube] View reference is missing!", this);
             _isFaulted = true;
             gameObject.SetActive(false);
+
             return;
         }
     }
 
     private void Update()
     {
-        if (_isFaulted || _isReleased || _config == null) return;
-
-        if (transform.position.y < _config.KillHeight)
+        if (_isFaulted || _isReleased || _config == null)
         {
-            ReleaseCube();
             return;
         }
 
-        if (!_isDying) return;
+        if (transform.position.y < _killHeight)
+        {
+            Release();
+            return;
+        }
+
+        if (!_isDying)
+        {
+            return;
+        }
 
         _lifetimeTimer += Time.deltaTime;
 
         if (_lifetimeTimer >= _targetLifetime)
         {
-            ReleaseCube();
+            Release();
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_isFaulted || _hasHitPlatform || _isReleased || _config == null) return;
+        if (_isFaulted || _hasHitPlatform || _isReleased || _config == null)
+        {
+            return;
+        }
 
         if (collision.gameObject.TryGetComponent<Platform>(out _))
         {
@@ -83,11 +94,16 @@ public class RainCube : MonoBehaviour
         OnLifetimeEnded = null;
     }
 
-    public void Initialize(Vector3 position, RainCubeConfig config)
+    public void Initialize(Vector3 position, RainCubeConfig config, float killHeight)
     {
-        if (_isFaulted) return;
+        if (_isFaulted)
+        {
+            return;
+        }
 
         _config = config;
+        _killHeight = killHeight;
+
         _isReleased = false;
         _hasHitPlatform = false;
         _isDying = false;
@@ -95,32 +111,45 @@ public class RainCube : MonoBehaviour
 
         transform.position = position;
         _rigidbody.position = position;
-        _rigidbody.velocity = Vector3.zero;
-        _rigidbody.angularVelocity = Vector3.zero;
+
+        if (_rigidbody.isKinematic == false)
+        {
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+        }
 
         _view.Initialize(_config.ShaderColorProperty, _config.DefaultSpawnColor);
     }
 
     public void TriggerDeathSequence(Color hitColor, float lifetime)
     {
-        if (_isFaulted) return;
+        if (_isFaulted) 
+        {
+            return;
+        } 
 
         _isDying = true;
         _targetLifetime = lifetime;
         _view.SetColor(hitColor);
     }
-
-    private Color GetRandomHitColor()
+    private void Release()
     {
-        if (_config.AvailableHitColors == null || _config.AvailableHitColors.Count == 0) return Color.red;
-        return _config.AvailableHitColors[Random.Range(0, _config.AvailableHitColors.Count)];
-    }
-
-    private void ReleaseCube()
-    {
-        if (_isReleased) return;
+        if (_isReleased)
+        {
+            return;
+        }
 
         _isReleased = true;
         OnLifetimeEnded?.Invoke(this);
+    }
+
+    private Color GetRandomHitColor()
+    {
+        if (_config.AvailableHitColors == null || _config.AvailableHitColors.Count == 0)
+        {
+            return Color.red;
+        }
+
+        return _config.AvailableHitColors[Random.Range(0, _config.AvailableHitColors.Count)];
     }
 }
